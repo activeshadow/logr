@@ -2,8 +2,35 @@ package stdlogr
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"time"
 )
+
+// Mimic github.com/pkg/errors w/out requiring it in the actual module.
+type wrapped struct {
+	cause error
+	msg   string
+}
+
+func (this *wrapped) Error() string { return this.msg + ": " + this.cause.Error() }
+
+func (this *wrapped) Cause() error { return this.cause }
+
+func (this *wrapped) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 'v':
+		if s.Flag('+') {
+			fmt.Fprintf(s, "%+v\n", this.Cause())
+			io.WriteString(s, this.msg)
+			return
+		}
+
+		fallthrough
+	case 's', 'q':
+		io.WriteString(s, this.Error())
+	}
+}
 
 func ExampleInfoLogger() {
 	mock, _ := time.Parse("2006-01-02", "2015-12-15")
@@ -22,6 +49,18 @@ func ExampleErrLogger() {
 	logger.(*StdLogr).clock = &clock{mock: mock}
 	logger.Error(err, "test error log", "hello", "world")
 	// Output: level=error ts="2015/12/15 00:00:00" epoch=1450137600 name=bar msg="test error log" hello=world error="BOOM SUCKA!"
+}
+
+func ExampleWrappedErrLogger() {
+	mock, _ := time.Parse("2006-01-02", "2015-12-15")
+	err := errors.New("BOOM SUCKA!")
+
+	err = &wrapped{cause: err, msg: "foo bar"}
+
+	logger := New("bar")
+	logger.(*StdLogr).clock = &clock{mock: mock}
+	logger.Error(err, "test error log", "hello", "world")
+	// Output: level=error ts="2015/12/15 00:00:00" epoch=1450137600 name=bar msg="test error log" hello=world error="foo bar: BOOM SUCKA!"
 }
 
 func ExampleNonVerboseLogger() {
