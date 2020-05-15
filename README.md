@@ -21,7 +21,7 @@ package main
 import (
   "errors"
 
-  "github.com/activeshadow/logr/stdlogr"
+  "actshad.dev/logr/stdlogr"
 )
 
 func main() {

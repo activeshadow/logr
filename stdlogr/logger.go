@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/activeshadow/logr/util"
+	"actshad.dev/logr/util"
 	"github.com/go-logr/logr"
 )
 
