@@ -78,7 +78,10 @@ type StdLogr struct {
 }
 
 func (this StdLogr) Error(err error, msg string, kvs ...interface{}) {
-	kvs = append(kvs, "error", err.Error())
+	if err != nil {
+		kvs = append(kvs, "error", err.Error())
+	}
+
 	fmt.Println("level=error " + this.fmtMsg(msg, kvs...))
 }
 
