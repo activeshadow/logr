@@ -17,7 +17,7 @@ func SetVerbosity(v int) {
 	verbosity = v
 }
 
-func GetVerbosity() int {
+func Verbosity() int {
 	return verbosity
 }
 
