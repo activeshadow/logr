@@ -17,6 +17,10 @@ func SetVerbosity(v int) {
 	verbosity = v
 }
 
+func GetVerbosity() int {
+	return verbosity
+}
+
 func LimitToLoggers(names ...string) {
 	loggers = append(loggers, names...)
 }
