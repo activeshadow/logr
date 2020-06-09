@@ -5,7 +5,6 @@ import (
 	"github.com/activeshadow/logr/util"
 	"github.com/go-logr/logr"
 	"github.com/sirupsen/logrus"
-	// "time"
 )
 
 var (
@@ -106,14 +105,9 @@ func New(name string, logger logrus.Logger) logr.Logger {
 }
 
 func createMap(kvs map[string]interface{}, extra []interface{}) map[string]interface{} {
-	ret := make(map[string]interface{})
-
-	for k, v := range kvs {
-		ret[k] = v
-	}
-
 	for i := 0; i < len(extra); i += 2 {
-		ret[extra[i].(string)] = extra[i+1]
+		kvs[extra[i].(string)] = extra[i+1]
 	}
-	return ret
+	
+	return kvs
 }
