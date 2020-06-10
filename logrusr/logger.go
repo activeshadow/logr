@@ -2,7 +2,9 @@ package logrusr
 
 import (
 	"fmt"
-	"github.com/activeshadow/logr/util"
+
+	"actshad.dev/logr/util"
+
 	"github.com/go-logr/logr"
 	"github.com/sirupsen/logrus"
 )
@@ -108,6 +110,6 @@ func createMap(kvs map[string]interface{}, extra []interface{}) map[string]inter
 	for i := 0; i < len(extra); i += 2 {
 		kvs[extra[i].(string)] = extra[i+1]
 	}
-	
+
 	return kvs
 }
