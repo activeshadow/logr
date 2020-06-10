@@ -3,9 +3,10 @@
 Some different implementations of the
 [go-logr/logr](https://github.com/go-logr/logr) logging interface.
 
-Currently there's only a *standard* implementation ([stdlogr](stdlogr)) using
-`fmt` that prints logs to `STDOUT` in
-[logfmt](http://godoc.org/github.com/kr/logfmt).
+| Implementation | Notes |
+|---|---|
+|[stdlogr](stdlogr)| A *standard* implementation using `fmt` that prints logs to `STDOUT` in [logfmt](http://godoc.org/github.com/kr/logfmt)|
+|[logrusr](logrusr)|Output using [logrus](https://github.com/sirupsen/logrus)
 
 ## stdlogr
 
@@ -44,6 +45,87 @@ Output:
 level=info ts=1534767423 name=foo msg="is this working?" working=true
 level=error ts=1534767423 name=foo.bar msg="what about this logger?" hello=world! error="this is an error"
 level=info ts=1534767423 name=foo msg="verbosity 1 log" v=1
+```
+
+## logrusr
+
+This was developed to work with [kubebuilder](https://github.com/kubernetes-sigs/kubebuilder) which uses logr internally. We needed logrus output, so this seemed the simplest way.
+
+Example:
+
+
+```
+package main
+
+import (
+  "errors"
+  "github.com/JeremyMarshall/logr/logrusr"
+  "github.com/sirupsen/logrus"
+)
+
+func main() {
+  // Create new "foo" logger that's enabled and has a verbosity level of 1.
+  l := logrus.New()
+  
+  // PrettyPrint should be false/not set 
+  l.SetFormatter(&logrus.JSONFormatter{PrettyPrint: true})
+
+  logger := logrusr.New("foo", *l ) 
+  logger.Info("is this working?", "working", true)
+
+  foobarLogger := logger.WithName("bar")
+  err := errors.New("this is an error")
+  foobarLogger.Error(err, "what about this logger?", "hello", "world!")
+
+  logrusr.SetVerbosity(1)
+  logger.V(1).Info("verbosity 1 log")
+  
+  logger.V(2).Info("verbosity 2 log")
+}
+```
+
+Output:
+
+```json
+{
+  "level": "info",
+  "msg": "is this working?",
+  "request": {
+    "kvs": [
+      "working",
+      true
+    ],
+    "name": "foo",
+    "this_kvs": {}
+  },
+  "time": "2019-07-30T14:19:05+10:00"
+}
+{
+  "level": "error",
+  "msg": "what about this logger?",
+  "request": {
+    "error": {},
+    "kvs": [
+      "hello",
+      "world!"
+    ],
+    "name": "foo.bar",
+    "this_kvs": {}
+  },
+  "time": "2019-07-30T14:19:05+10:00"
+}
+{
+  "level": "info",
+  "msg": "verbosity 1 log",
+  "request": {
+    "kvs": null,
+    "name": "foo",
+    "this_kvs": {
+      "v": 1
+    }
+  },
+  "time": "2019-07-30T14:19:05+10:00"
+}
 ```
 
 ## License
